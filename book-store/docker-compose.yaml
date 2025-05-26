@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  mysqldb:
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: catalog_library
+      MYSQL_USER: bookstore
+      MYSQL_PASSWORD: bookstore
+    networks:
+      - book-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  spring-app:
+    build: .
+    environment:
+      MYSQL_DB_HOST: mysqldb
+    depends_on:
+      - mysqldb
+    ports:
+      - "8081:8081"
+    networks:
+      - book-network
+
+networks:
+  book-network:
